@@ -1,0 +1,27 @@
+# zshrc
+#
+export GPG_TTY=$(tty) # TUI pinentry, need be set for each pts
+
+autoload -U compinit && compinit
+zmodload zsh/complist
+autoload -U colors && colors
+zstyle ':completion:*' menu select
+_comp_options+=(globdots)
+
+PS1='%~ %(?..%? )%# '
+
+setopt append_history inc_append_history share_history
+setopt autocd
+
+source $ZDOTDIR/aliases.zsh
+source $ZDOTDIR/token.zsh
+source $ZDOTDIR/functions.zsh
+
+source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+export LS_COLORS="$(vivid generate gruvbox-dark)"
+export HISTSIZE=10000
+export SAVEHIST=10000
+
+eval "$(zvm completion zsh)"

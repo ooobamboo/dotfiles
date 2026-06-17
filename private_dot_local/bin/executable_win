@@ -1,0 +1,12 @@
+#!/bin/bash -x
+
+VM_IP="192.168.122.109"          # Static IP or hostname of the VM
+USER="seriola"             # Windows username
+PASS=$(wmenu -P -p "Enter Windows Password: " <&-)            # Windows password
+
+# 1. Start the VM if it's not already running (KVM/Libvirt example)
+virsh list --name | grep -q "^win10$" || virsh start win10 >/dev/null 2>&1
+
+# 2. Connect using FreeRDP
+echo "Connecting to $VM_IP..."
+until nc -zv -w 1 $VM_IP 3389 >/dev/null 2>&1; do sleep 2; done && sdl3-freerdp3 /u:"$USER" /p:"$PASS" /v:"$VM_IP" /dynamic-resolution +clipboard /sound /microphone /cert:ignore /network:lan /gfx:progressive:off,small-cache:off 

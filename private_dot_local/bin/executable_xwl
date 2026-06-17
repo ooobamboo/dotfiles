@@ -1,0 +1,20 @@
+#!/bin/sh
+
+start_server() {
+    if pgrep -f 'xwayland-satellite' > /dev/null; then
+        echo "xwayland-satellite is already running"
+        exit 0
+    else
+        DISPLAY=":0"
+        xwayland-satellite
+    fi
+}
+
+start_client() {
+    env DISPLAY=":0" $@
+    sleep 1
+    pkill fcitx5 && fcitx5 -d
+}
+
+[ -z "$1" ] && start_server
+[ -n "$1" ] && start_client $@

@@ -1,0 +1,55 @@
+#!/bin/sh
+
+[ -z "$GRIM_DEFAULT_DIR" ] && GRIM_DEFAULT_DIR="$HOME/tmp"
+SCREENSHOT_HOME="${HOME}/tmp"
+[ -d "$SCREENSHOT_HOME" ] || mkdir -p $SCREENSHOT_HOME
+
+filename="${SCREENSHOT_HOME}/shoot-$(date +%Y-%m-%d_%H_%M_%S).png"
+
+notify() {
+    [ -z "$region" ] && exit 0
+    fyi -u low "$(basename $0)" "$region"
+}
+
+shootWindow() {
+    gpu-screen-recorder -w portal -o "$filename"
+}
+
+shootOutput() {
+        region="$(wlr-randr \
+                                | grep '^[a-zA-Z0-9]'\
+                                | wmenu -p "$(basename $0)" -l 3 \
+                                | tr -d '()' \
+                                | cut -d' ' -f-1 )"
+        sleep 0.1
+        grim -o "$region" "$filename"
+        notify
+}
+
+shootAll() {
+    region="all outputs"
+    grim "$filename"
+    notify
+}
+
+shootGeo() {
+    region=$(slurp)
+    grim -g "$region" "$filename" && wl-copy  < "$filename"
+    notify
+}
+
+shootShow() {
+    local tmpfile=$(mktemp /tmp/mag.XXXXXX.png)
+    grim -l 0 "$tmpfile"
+    imv "$tmpfile" -f
+    rm "$tmpfile"
+}
+
+[ -z "$1" ] && shootOutput
+
+case "$1" in
+    -w|--window) shootWindow ;;
+    -a|--all) shootAll ;;
+    -g|--geo) shootGeo ;;
+    -s|--show) shootShow ;;
+esac

@@ -1,0 +1,10 @@
+#!/bin/sh
+
+rfkill list bluetooth | grep -q 'Soft blocked: yes' && 
+	{ fyi -u critical "Bluetooth" "Blocked by rfkill." ; exit 1; }
+
+bluetoothctl show | grep -q "Powered: yes" &&
+	{ bluetoothctl power off; status="off"; } ||
+	{ bluetoothctl power on; status="on"; }
+
+fyi -r 1000 "Bluetooth $status"

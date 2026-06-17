@@ -1,0 +1,10 @@
+#!/bin/sh -x
+
+RAW=$($HOME/wsp/mywm/input-layer/input-layer)
+[ -z "$RAW" ] && exit 0
+
+TARGET_ISO="${RAW%% *}"
+SOURCE_TEXT="${RAW#* }"
+[ "$TARGET_ISO" = "$SOURCE_TEXT" ] && { fyi "Error" "Format: [lang] [text]"; exit 1; }
+
+/usr/bin/trans -b -p -t "$TARGET_ISO" "$SOURCE_TEXT" | tr -d '\n' | wl-copy

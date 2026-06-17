@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+yt-dlp \
+  --download-archive "${XDG_MUSIC_DIR}/downloaded.txt" \
+  --extractor-args "youtube:player_client=android_music" \
+  --format "bestaudio[acodec=opus]/bestaudio" \
+  -x \
+  --audio-format opus \
+  --embed-metadata \
+  --embed-thumbnail \
+  --convert-thumbnails jpg \
+  --parse-metadata "%(artist,uploader)s:%(artist)s" \
+  --output "${XDG_MUSIC_DIR}/%(artist|uploader)s/%(album|playlist)s/%(title)s.%(ext)s" \
+  --continue \
+  --ignore-errors \
+  --concurrent-fragments 4 \
+  --no-overwrites \
+  "https://music.youtube.com/playlist?list=LM"

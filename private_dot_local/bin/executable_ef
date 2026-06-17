@@ -1,0 +1,18 @@
+#!/bin/sh
+
+mac="00:A4:1C:30:27:D4"
+dev="ef4"
+
+rfkill list bluetooth | grep -q "Soft blocked: yes" && { fyi -r 1000 -u critical "Bluetooth Blocked" "Unblock it manually."; exit 1; }
+bluetoothctl show | grep -q "Powered: yes"          || { fyi -r 1000 -u critical "Bluetooth Off" "Turn it on manually."; exit 1; }
+
+if bluetoothctl info "$mac" | grep -q "Connected: yes"; then
+	printf "Disconnect from %s?\n" "$dev" | wmenu -p "Bluetooth" && bluetoothctl disconnect "$mac"
+	exit 0
+fi
+
+printf "Connect to %s?\n" "$dev" | wmenu -p "Bluetooth" || { fyi -r 1000 "Cancelled" "User canceled."; exit 0; }
+
+bluetoothctl connect "$mac" | grep -q "Connection successful" \
+	&& fyi -r 1000 -H string:x-canonical-private-synchronous:bt "Success" "Connected to $dev." \
+	|| fyi -r 1000 string:x-canonical-private-synchronous:bt "Failed" "Connection to $dev failed."

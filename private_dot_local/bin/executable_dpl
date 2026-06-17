@@ -1,0 +1,12 @@
+#!/bin/sh
+
+DIR="/tmp/radar"
+URL="https://www.nmc.cn/publish/radar/guang-dong/guang-zhou.htm"
+
+rm -rf "$DIR" && mkdir -p "$DIR"
+
+curl -s "$URL" | grep -o 'data-img="[^"]*"' | sed 's/data-img="//;s/"//' | sed -n '6,17p' | \
+  awk -v d="$DIR" '{ cmd="curl -s \"" $0 "\" -o \"" d "/" NR ".png\""; system(cmd) }'
+
+ffmpeg -y -f image2 -framerate 2 -i "$DIR/%d.png" "$DIR/out.gif"
+mpv --loop=inf --no-osc --ontop "$DIR/out.gif"

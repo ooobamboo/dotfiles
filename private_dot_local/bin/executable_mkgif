@@ -1,0 +1,8 @@
+#!/bin/sh
+
+file="${1:-video file missing}"
+shift
+
+ffmpeg -hide_banner -loglevel warning -i "$file" "$@" \
+  -f yuv4mpegpipe -pix_fmt yuv420p - |
+    gifski -r 50 -o "${file%%.*}.gif" -

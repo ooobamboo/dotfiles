@@ -1,0 +1,25 @@
+#!/bin/sh
+
+dbus-update-activation-environment --all
+dbus-update-activation-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=dwl
+
+pipewire &
+pipewire-pulse &
+wireplumber &
+
+wayland-pipewire-idle-inhibit &
+wlsunset -l 39.9 -L 116.4 &
+kanshi &
+fcitx5 -d &
+wl-paste --watch cliphist store &
+foot -s &
+
+if [ -e "$XDG_RUNTIME_DIR/wob.fifo" ] && [ ! -p "$XDG_RUNTIME_DIR/wob.fifo" ]; then
+    rm -f "$XDG_RUNTIME_DIR/wob.fifo"
+fi
+[ -p "$XDG_RUNTIME_DIR/wob.fifo" ] || mkfifo "$XDG_RUNTIME_DIR/wob.fifo"
+pkill -f "wob.fifo" 2>/dev/null
+tail -f "$XDG_RUNTIME_DIR/wob.fifo" | wob &
+
+$HOME/.local/bin/setbg $XDG_DATA_HOME/wallpaper &
+$HOME/.local/bin/dim &

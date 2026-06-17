@@ -1,0 +1,30 @@
+#!/bin/env bash
+set -x
+
+SCR="/tmp/ocr"
+GEOM=$(slurp)
+if [ -z "$GEOM" ]; then
+    notify-send -u low "Select cancelled" "You pressed Esc or didn't select a region"
+    exit 1
+fi
+
+grim -g "$GEOM" $SCR.png
+mogrify -density 300 -resize 200% -colorspace gray -contrast-stretch 0x5% -sharpen 0x1 $SCR.png
+tesseract-ocr $SCR.png $SCR &> /dev/null -l eng+chi_sim
+
+cat $SCR.txt | python3 -c "
+import re
+import sys
+
+text = sys.stdin.read()
+text = re.sub(r'([\u4e00-\u9fa5])\s+([\u4e00-\u9fa5])', r'\1\2', text)
+text = re.sub(r'([0-9a-zA-Z])\s+([\u4e00-\u9fa5])', r'\1\2', text)
+text = re.sub(r'([\u4e00-\u9fa5])\s+([0-9a-zA-Z])', r'\1\2', text)
+text = re.sub(r'([^0-9a-zA-Z\s])\s+([\u4e00-\u9fa5])', r'\1\2', text)
+text = re.sub(r'([\u4e00-\u9fa5])\s+([^0-9a-zA-Z\s])', r'\1\2', text)
+print(text)
+" | wl-copy && notify-send "OCR2 Success" "Text copied to clipboard."
+
+rm $SCR.png $SCR.txt
+
+exit

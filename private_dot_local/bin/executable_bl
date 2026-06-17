@@ -1,0 +1,42 @@
+#!/bin/sh
+
+mode=in
+[ "$1" = "-e" ] && { mode=ex; shift; }
+
+val="$1"
+case "$val" in
+    [0-9]*) ;;
+    *) echo "usage: bl [-e] n[%][-/+]" >&2; exit 1 ;;
+esac
+
+if [ "$mode" = "in" ]; then
+    case "$val" in *[!0-9]*) arg="$val" ;; *) arg="$val%" ;; esac
+    
+    res=$(brightnessctl -m set "$arg" | cut -d, -f4)
+    res="${res%%%}"
+else
+    CACHE="$XDG_STATE_HOME/brightness-ddc"
+    read -r CUR 2>/dev/null < "$CACHE" || CUR=0
+
+    delta="${val%%[!0-9]*}"
+
+    case "$val" in
+        *+) tgt=$(( CUR + delta )) ;;
+        *-) tgt=$(( CUR - delta )) ;;
+        *)  tgt=$delta ;;
+    esac
+
+    [ "$tgt" -lt 0 ] && tgt=0
+    [ "$tgt" -gt 100 ] && tgt=100
+
+    chk=$(( 0x6E ^ 0x51 ^ 0x84 ^ 0x03 ^ 0x10 ^ 0 ^ tgt ))
+    i2ctransfer -y 2 w7@0x37 0x51 0x84 0x03 0x10 0 "$tgt" "$chk" || {
+        echo "Error: DDC write failed" >&2
+        exit 1
+    }
+
+    echo "$tgt" > "$CACHE"
+    res="$tgt"
+fi
+
+echo "$res" > "${XDG_RUNTIME_DIR}/wob.fifo"

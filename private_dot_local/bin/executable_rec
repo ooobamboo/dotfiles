@@ -1,0 +1,5 @@
+#!/bin/sh
+
+killall -SIGINT gpu-screen-recorder && fyi -t 1500 -u low 'GPU Screen Recorder' 'Stopped' && exit 0
+
+/usr/bin/gpu-screen-recorder -w portal -o "$HOME/tmp/rec-$(date +%Y-%m-%d_%H_%M_%S).mp4"

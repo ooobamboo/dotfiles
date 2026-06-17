@@ -1,0 +1,13 @@
+#!/bin/sh
+
+pid=$(ps -eo rss,pid,command --sort=-rss | awk 'NR>1 {
+    rss=$1; pid=$2; 
+    $1=""; $2=""; 
+    sub(/^[ \t]+/, ""); 
+    printf "%-60s %-10.1fMB %s\n", $0, rss/1024, pid
+}' | fzf -m | awk '{print $NF}')
+
+if [ -n "$pid" ]
+then
+  echo "$pid" | xargs -n 1 kill -${1:-9}
+fi

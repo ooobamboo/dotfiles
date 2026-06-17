@@ -1,0 +1,11 @@
+# [software]
+https://codeberg.org/river/river/releases.rss ~river 
+https://codeberg.org/river/river-classic/releases.rss ~river-classic
+https://github.com/kewuaa/kwm/releases.atom ~kwm
+https://codeberg.org/sewn/dam.rss ~dam
+https://codeberg.org/dwl/dwl.rss ~dwl
+https://codeberg.org/sewn/wawa.rss ~wawa
+https://git.sr.ht/~kennylevinsen/wldim/log/rss.xml ~wldim
+https://github.com/ifreund/dumb_runtime_dir/releases.atom ~kwm
+https://codeberg.org/dnkl/fuzzel.rss ~fuzzel
+https://git.dec05eba.com/gpu-screen-recorder/atom ~gpu-screen-recorder
