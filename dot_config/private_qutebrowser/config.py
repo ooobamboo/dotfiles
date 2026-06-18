@@ -9,9 +9,9 @@ c.tabs.title.format = "{audio}{current_title}"
 c.fonts.web.size.default = 20
 
 c.url.searchengines = {
-        'DEFAULT': 'https://lite.duckduckgo.com/lite/?q={}',
+        'DEFAULT': 'https://google.com/search?q={}',
         '!aur': 'https://aur.archlinux.org/packages?O=0&K={}',
-        '!gg': 'https://google.com/search?q={}',
+        '!ddg': 'https://lite.duckduckgo.com/lite/?q={}',
         '!aw': 'https://wiki.archlinux.org/?search={}',
         '!bing': 'https://cn.bing.com/search?q={}',
         '!apkg': 'https://archlinux.org/packages/?sort=&q={}&maintainer=&flagged=',
@@ -24,7 +24,7 @@ c.url.searchengines = {
         '!fh': 'https://flathub.org/en/apps/search?q={}',
 }
 
-c.auto_save.session = False # save tabs on quit/restart
+c.auto_save.session = False
 
 c.tabs.indicator.width = 0
 c.tabs.width = '7%'
@@ -32,7 +32,6 @@ c.tabs.width = '7%'
 # dark mode setup
 c.colors.webpage.darkmode.enabled = True
 c.colors.webpage.darkmode.policy.images = 'never'
-# config.set('colors.webpage.darkmode.enabled', False, '')
 config.bind('I', 'config-cycle colors.webpage.darkmode.enabled false true')
 
 # fonts
@@ -42,6 +41,12 @@ c.fonts.web.family.fixed = 'monospace'
 c.fonts.web.family.sans_serif = 'monospace'
 c.fonts.web.family.serif = 'monospace'
 c.fonts.web.family.standard = 'monospace'
+
+c.downloads.location.directory = "~/dls"
+c.downloads.location.prompt = False
+c.downloads.remove_finished = 3300
+
+c.content.fullscreen.window = True
 
 # privacy - adjust these settings based on your preference
 config.set("completion.cmd_history_max_items", 0)

@@ -30,3 +30,5 @@ alias n="nnn"
 alias v="nvim"
 
 alias wshowkeys="$HOME/wsp/mywm/wshowkeys/build/wshowkeys -a bottom -F 'monospace 20'"
+alias wooz="$HOME/wsp/mywm/wooz/build/wooz --invert-scroll --mouse-track"
+alias hyprpicker="$HOME/wsp/mywm/hyprpicker/build/hyprpicker -a"
