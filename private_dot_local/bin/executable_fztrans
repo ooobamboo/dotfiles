@@ -7,4 +7,4 @@ TARGET_ISO="${RAW%% *}"
 SOURCE_TEXT="${RAW#* }"
 [ "$TARGET_ISO" = "$SOURCE_TEXT" ] && { fyi "Error" "Format: [lang] [text]"; exit 1; }
 
-/usr/bin/trans -b -p -t "$TARGET_ISO" "$SOURCE_TEXT" | tr -d '\n' | wl-copy
+/usr/bin/trans -b -t "$TARGET_ISO" "$SOURCE_TEXT" | tr -d '\n' | wl-copy

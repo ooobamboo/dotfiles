@@ -1,30 +1,118 @@
-#!/bin/env bash
-set -x
+#!/usr/bin/env -S /home/seriola/wsp/ocr/.venv/bin/python
+"""ocro — Screenshot OCR via grim+slurp + PaddleOCR PP-OCRv6"""
 
-SCR="/tmp/ocr"
-GEOM=$(slurp)
-if [ -z "$GEOM" ]; then
-    notify-send -u low "Select cancelled" "You pressed Esc or didn't select a region"
-    exit 1
-fi
-
-grim -g "$GEOM" $SCR.png
-mogrify -density 300 -resize 200% -colorspace gray -contrast-stretch 0x5% -sharpen 0x1 $SCR.png
-tesseract-ocr $SCR.png $SCR &> /dev/null -l eng+chi_sim
-
-cat $SCR.txt | python3 -c "
-import re
+import argparse
+import logging
+import os
+import subprocess
 import sys
+import tempfile
+import time
+import warnings
+from pathlib import Path
 
-text = sys.stdin.read()
-text = re.sub(r'([\u4e00-\u9fa5])\s+([\u4e00-\u9fa5])', r'\1\2', text)
-text = re.sub(r'([0-9a-zA-Z])\s+([\u4e00-\u9fa5])', r'\1\2', text)
-text = re.sub(r'([\u4e00-\u9fa5])\s+([0-9a-zA-Z])', r'\1\2', text)
-text = re.sub(r'([^0-9a-zA-Z\s])\s+([\u4e00-\u9fa5])', r'\1\2', text)
-text = re.sub(r'([\u4e00-\u9fa5])\s+([^0-9a-zA-Z\s])', r'\1\2', text)
-print(text)
-" | wl-copy && notify-send "OCR2 Success" "Text copied to clipboard."
+os.environ.setdefault("PADDLE_PDX_CACHE_HOME",
+                      os.path.join(os.environ.get("XDG_DATA_HOME", os.path.expanduser("~/.local/share")), "paddlex"))
 
-rm $SCR.png $SCR.txt
+import cv2
+import numpy as np
+from paddleocr import PaddleOCR
 
-exit
+os.environ["PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK"] = "True"
+os.environ["PADDLE_PDX_EAGER_INIT"] = "False"
+warnings.filterwarnings("ignore")
+for name in ["paddlex", "paddleocr", "paddle", "ppocr"]:
+    logging.getLogger(name).setLevel(logging.ERROR)
+
+MODEL_TIERS = {
+    "tiny":  ("PP-OCRv6_tiny_det",  "PP-OCRv6_tiny_rec"),
+    "small": ("PP-OCRv6_small_det", "PP-OCRv6_small_rec"),
+}
+
+MIN_DIM = 200
+SCALE_THRESH = 1.5
+
+def capture_region() -> bytes:
+    geo = subprocess.run(["slurp"], capture_output=True, text=True, check=True).stdout.strip()
+    if not geo:
+        sys.exit(1)
+    return subprocess.run(["grim", "-g", geo, "-"], capture_output=True, check=True).stdout
+
+
+def maybe_upscale(img_bytes: bytes) -> bytes:
+    arr = cv2.imdecode(np.frombuffer(img_bytes, np.uint8), cv2.IMREAD_COLOR)
+    h, w = arr.shape[:2]
+    min_dim = min(h, w)
+    if min_dim >= MIN_DIM:
+        return img_bytes
+    scale = min(MIN_DIM / min_dim, SCALE_THRESH)
+    arr = cv2.resize(arr, None, fx=scale, fy=scale, interpolation=cv2.INTER_CUBIC)
+    _, encoded = cv2.imencode(".png", arr)
+    return encoded.tobytes()
+
+
+def main() -> None:
+    ap = argparse.ArgumentParser(description="ocro — screenshot OCR")
+    ap.add_argument("--model", choices=list(MODEL_TIERS), default="tiny")
+    ap.add_argument("--lang", choices=["ch", "en"], default="ch")
+    ap.add_argument("--upscale", type=float, default=0,
+                    help="force upscale factor (0 = auto)")
+    args = ap.parse_args()
+
+    det_name, rec_name = MODEL_TIERS[args.model]
+
+    ocr = PaddleOCR(
+        text_detection_model_name=det_name,
+        text_recognition_model_name=rec_name,
+        use_doc_orientation_classify=False,
+        use_doc_unwarping=False,
+        use_textline_orientation=False,
+        device="gpu",
+        text_recognition_batch_size=1,
+        text_det_box_thresh=0.4,
+        text_det_unclip_ratio=2.0,
+    )
+
+    t_start = time.time()
+    img = capture_region()
+
+    if args.upscale > 0:
+        arr = cv2.imdecode(np.frombuffer(img, np.uint8), cv2.IMREAD_COLOR)
+        s = args.upscale
+        arr = cv2.resize(arr, None, fx=s, fy=s, interpolation=cv2.INTER_CUBIC)
+        _, img = cv2.imencode(".png", arr)
+    else:
+        img = maybe_upscale(img)
+
+    tmp = Path(tempfile.mktemp(suffix=".png"))
+    tmp.write_bytes(img)
+
+    try:
+        result = ocr.predict(str(tmp))
+    finally:
+        tmp.unlink(missing_ok=True)
+
+    if not result:
+        print("(no text)")
+        return
+
+    texts = []
+    for page in result:
+        texts.extend(page.get("rec_texts", []))
+
+    text = "\n".join(texts)
+    if not text.strip():
+        print("(no text)")
+        return
+
+    t_elapsed = time.time() - t_start
+    print(f"# ocro: {t_elapsed:.2f}s | {args.model} | {args.lang}", file=sys.stderr)
+    print(text)
+    try:
+        subprocess.run(["wl-copy"], input=text, text=True, check=False)
+    except FileNotFoundError:
+        pass
+
+
+if __name__ == "__main__":
+    main()

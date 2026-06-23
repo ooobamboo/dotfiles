@@ -4,8 +4,6 @@ alias vim="nvim" vimdiff="nvim -d"
 alias vi="nvim"
 
 alias rr="dbus-run-session -- river"
-alias rv="dbus-run-session -- river -c $XDG_CONFIG_HOME/river-classic/init"
-alias dl="dbus-run-session -- $HOME/.local/bin/startw"
 alias st="exec /usr/bin/gamescope -W 2560 -H 1600 -r 165 -f -m 1 -e -- steam"
 
 alias yarn="yarn --use-yarnrc $XDG_CONFIG_HOME/yarn/config"
@@ -29,6 +27,6 @@ alias gu="git pull"
 alias n="nnn"
 alias v="nvim"
 
-alias wshowkeys="$HOME/wsp/mywm/wshowkeys/build/wshowkeys -a bottom -F 'monospace 20'"
-alias wooz="$HOME/wsp/mywm/wooz/build/wooz --invert-scroll --mouse-track"
-alias hyprpicker="$HOME/wsp/mywm/hyprpicker/build/hyprpicker -a"
+alias wshowkeys="wshowkeys -a bottom -F 'monospace 20'"
+alias wooz="wooz --invert-scroll --mouse-track"
+alias hyprpicker="hyprpicker -a"
