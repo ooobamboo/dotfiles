@@ -83,3 +83,9 @@ function precmd {
 function preexec {
     print -n "\e]133;C\e\\"
 }
+
+function doc2pdf() {
+    for f in "$@"; do
+        [ -f "$f" ] && flatpak run org.libreoffice.LibreOffice --headless --convert-to pdf --outdir "${f:h}" "$f"
+    done
+}
