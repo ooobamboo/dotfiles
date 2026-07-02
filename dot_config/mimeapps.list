@@ -2,7 +2,7 @@
 text/x-shellscript=text.desktop;
 text/plain=text.desktop;
 application/postscript=pdf.desktop;
-application/pdf=org.pwmt.zathura-pdf-mupdf.desktop
+application/pdf=pdf.desktop
 image/png=img.desktop
 image/jpeg=img.desktop
 image/gif=img.desktop
@@ -71,4 +71,4 @@ text/x-csrc=nvim.desktop;text.desktop;
 text/x-python=nvim.desktop;text.desktop;
 text/x-javascript=nvim.desktop;text.desktop;
 application/x-shellscript=nvim.desktop;text.desktop;
-application/pdf=org.pwmt.zathura-pdf-mupdf.desktop;
+application/pdf=org.pwmt.zathura-pdf-mupdf.desktop;pdf.desktop;
