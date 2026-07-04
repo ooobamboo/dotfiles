@@ -24,3 +24,5 @@ export HISTSIZE=10000
 export SAVEHIST=10000
 
 eval "$(zvm completion zsh)"
+
+export LS_COLORS="$(vivid generate gruvbox-dark)" 
