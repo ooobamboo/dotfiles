@@ -22,7 +22,7 @@ shootOutput() {
                                 | tr -d '()' \
                                 | cut -d' ' -f-1 )"
         sleep 0.1
-        grim -o "$region" "$filename"
+        grim -o "$region" "$filename" && wl-copy < "$filename"
         notify
 }
 
