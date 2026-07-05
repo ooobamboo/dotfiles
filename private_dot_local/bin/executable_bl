@@ -39,4 +39,4 @@ else
     res="$tgt"
 fi
 
-echo "$res" > "${XDG_RUNTIME_DIR}/wob.fifo"
+fyi -r 998 -H int:value:"$res" "Brightness"

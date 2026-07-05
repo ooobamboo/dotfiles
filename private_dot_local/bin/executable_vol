@@ -26,4 +26,4 @@ case "$dev" in
 	@DEFAULT_SOURCE@) dev=Source ;;
 esac
 
-echo $vol > $XDG_RUNTIME_DIR/wob.fifo
+fyi -r 999 -H int:value:"$vol" "Volume"
