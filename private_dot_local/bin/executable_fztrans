@@ -1,0 +1,10 @@
+#!/bin/sh
+
+RAW=$(fuzzel -d --prompt-only="> ")
+[ -z "$RAW" ] && exit 0
+
+TARGET_ISO="${RAW%% *}"
+SOURCE_TEXT="${RAW#* }"
+[ "$TARGET_ISO" = "$SOURCE_TEXT" ] && { fyi "Error" "Format: [lang] [text]"; exit 1; }
+
+/usr/bin/trans -b -t "$TARGET_ISO" "$SOURCE_TEXT" | tr -d '\n' | wtype -
