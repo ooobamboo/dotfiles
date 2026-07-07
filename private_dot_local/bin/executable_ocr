@@ -1,4 +1,4 @@
-#!/usr/bin/env -S /home/seriola/wsp/ocr/.venv/bin/python
+#!/usr/bin/env -S /home/seriola/.local/src/ocr/.venv/bin/python
 """ocro — Screenshot OCR via grim+slurp + PaddleOCR PP-OCRv6"""
 
 import argparse

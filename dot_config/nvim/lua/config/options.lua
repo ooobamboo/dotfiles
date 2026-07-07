@@ -1,7 +1,17 @@
-vim.opt.termguicolors = true
-vim.opt.number = true
-vim.opt.relativenumber = true
-vim.opt.wrap = false
+vim.o.termguicolors = true
+
+vim.o.number = true
+vim.o.relativenumber = true
+
+vim.o.wrap = false
+
+vim.o.ignorecase = true
+vim.o.smartcase = true
+
+vim.o.expandtab = true
+vim.o.tabstop = 4
+vim.o.shiftwidth = 4
+vim.o.smartindent = true
 
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
